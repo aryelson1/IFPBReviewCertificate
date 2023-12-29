@@ -196,7 +196,7 @@ Aqui estão alguns links úteis para a documentação do OJS:
 
 - [Documentação Geral do OJS](https://docs.pkp.sfu.ca/)
 
-- [Guia de Atualização do OJS]([https://docs.pkp.sfu.ca/learning-ojs/en/upgrading-ojs](https://docs.pkp.sfu.ca/learning-ojs/3.3/pt/about-ojs#install-and-upgrade))
+- [Guia de Atualização do OJS](https://docs.pkp.sfu.ca/learning-ojs/3.3/pt/about-ojs#install-and-upgrade)
 
 - [Fórum da Comunidade OJS](https://forum.pkp.sfu.ca/)
 
