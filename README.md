@@ -1,6 +1,39 @@
-# Título do Repositório
+# Plugin Genérico de Certificado para Revisores de Artigos
 
-Descrição curta do propósito do repositório.
+O **Plugin Genérico de Certificado para Revisores de Artigos** é uma ferramenta inovadora projetada para simplificar e aprimorar o reconhecimento dos revisores que contribuem significativamente para o processo de revisão de artigos científicos. Este plugin integra-se perfeitamente ao **Open Journal Systems (OJS)**, proporcionando aos autores a capacidade de baixar um certificado em formato PDF, validando e destacando seu papel como revisor de um artigo específico.
+
+## Recursos Principais:
+
+1. **Geração Automática de Certificados:**
+   - O plugin automatiza a geração de certificados personalizados para os revisores, eliminando a necessidade de processos manuais demorados.
+
+2. **Integração Perfeita com o OJS:**
+   - Integração fácil e direta com o ambiente do Open Journal Systems, proporcionando uma experiência tranquila tanto para os autores quanto para os administradores da revista.
+
+3. **Download Conveniente em Formato PDF:**
+   - Os revisores podem baixar seus certificados em formato PDF de maneira simples e direta, garantindo facilidade de acesso e compartilhamento.
+
+4. **Personalização do Certificado:**
+   - Os administradores têm a capacidade de personalizar o design e as informações presentes nos certificados, adaptando-os às necessidades específicas da revista.
+
+5. **Registro Histórico de Revisões:**
+   - O plugin mantém um registro histórico das revisões realizadas por cada revisor, contribuindo para a transparência e reconhecimento contínuo.
+
+## Como Utilizar:
+
+1. **Instalação:**
+   - Faça o download do plugin e siga as instruções de instalação no ambiente do OJS.
+
+2. **Configuração:**
+   - Personalize os certificados de acordo com as diretrizes da revista.
+
+3. **Uso por Autores/Revisores:**
+   - Após a conclusão bem-sucedida da revisão, os autores podem acessar o certificado correspondente através do OJS e realizar o download do PDF.
+
+4. **Aprimoramento da Experiência do Revisor:**
+   - A implementação deste plugin visa não apenas reconhecer os revisores, mas também melhorar a experiência geral, promovendo a participação ativa e contínua.
+
+Este **Plugin Genérico de Certificado para Revisores de Artigos** é uma adição valiosa para qualquer revista que busca aprimorar o reconhecimento dos revisores, incentivando sua participação e contribuição essenciais para o avanço da pesquisa científica.
 
 ## Instalação do XAMPP
 
@@ -116,11 +149,63 @@ Pronto! Agora você instalou o XAMPP, configurou o banco de dados e instalou o O
 
 Lembre-se de seguir a documentação específica do plugin, se disponível, para garantir que você atenda a todos os requisitos e configurações necessárias. Certifique-se também de fazer backup do seu sistema antes de fazer alterações significativas.
 
+# Atualização do Open Journal Systems (OJS)
+
+Antes de começar, é altamente recomendável fazer backup do seu sistema, incluindo a pasta `files` e um dump do banco de dados.
+
+## 1. Backup do Sistema
+
+- **Pasta 'files':**
+  - Faça uma cópia de backup da pasta `files` do seu diretório OJS. Esta pasta contém os uploads de arquivos, como imagens e documentos.
+
+- **Backup do Banco de Dados:**
+  - Execute um dump do banco de dados atual usando ferramentas como `mysqldump` ou qualquer outra ferramenta que você prefira.
+
+## 2. Download da Nova Versão do OJS
+
+- Acesse o site oficial do OJS para baixar a versão mais recente: [https://pkp.sfu.ca/ojs/ojs_download/](https://pkp.sfu.ca/ojs/ojs_download/)
+
+## 3. Descompacte o Novo OJS
+
+- Descompacte o arquivo baixado em um diretório temporário.
+
+## 4. Substitua a Pasta 'files'
+
+- Copie a pasta `files` do seu backup para o diretório do novo OJS. Isso garantirá que todos os uploads e arquivos personalizados sejam preservados.
+
+## 5. Migração do Banco de Dados
+
+- Execute o novo OJS no navegador, o que geralmente inicia o processo de migração do banco de dados.
+
+## 6. Configuração do Banco de Dados
+
+- Durante o processo de instalação/migração, você será solicitado a fornecer informações do banco de dados. Use as mesmas informações que você usou na versão anterior do OJS.
+
+## 7. Verificação e Configuração Adicional
+
+- Verifique se tudo está funcionando corretamente no OJS após a atualização.
+- Consulte a documentação da versão específica do OJS para quaisquer configurações adicionais ou ajustes necessários.
+
+## 8. Conclusão
+
+Parabéns, você concluiu a atualização do OJS! Certifique-se de revisar qualquer documentação de versão fornecida pela equipe do OJS para garantir que todas as novas funcionalidades sejam aproveitadas.
+
+Aqui estão alguns links úteis para a documentação do OJS:
+
+- [Documentação Geral do OJS](https://docs.pkp.sfu.ca/)
+
+- [Guia de Atualização do OJS](https://docs.pkp.sfu.ca/learning-ojs/en/upgrading-ojs)
+
+- [Fórum da Comunidade OJS](https://forum.pkp.sfu.ca/)
 
 ## Contribuições
 
-Se você quiser contribuir para este projeto, sinta-se à vontade para abrir uma "issue" ou enviar um "pull request". Estamos abertos a melhorias e novas ideias.
+Se você encontrar problemas durante a atualização ou quiser contribuir com melhorias para este guia, sinta-se à vontade para abrir uma "issue" ou enviar um "pull request".
+
+## Autores
+
+- Aryelson Gonçalves(https://github.com/aryelson1)
 
 ## Licença
 
-Este projeto está licenciado sob a [Licença MIT](LICENSE).
+Este plugin é distribuído sob a [Licença MIT](LICENSE), proporcionando flexibilidade e liberdade para sua utilização e adaptação conforme necessário.
