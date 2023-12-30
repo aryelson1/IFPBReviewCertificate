@@ -207,6 +207,8 @@ Se você encontrar problemas durante a atualização ou quiser contribuir com me
 ## Autores
 
 - Aryelson Gonçalves(https://github.com/aryelson1)
+- Symon Bezerra da Nóbrega(https://github.com/SymonBezerra)
+- Edson Gervásio dos Santos Júnior(https://github.com/)
 
 ## Licença
 
