@@ -37,60 +37,6 @@ O **Plugin Genérico de Certificado para Revisores de Artigos** é uma ferrament
 
 Este **Plugin Genérico de Certificado para Revisores de Artigos** é uma adição valiosa para qualquer revista que busca aprimorar o reconhecimento dos revisores, incentivando sua participação e contribuição essenciais para o avanço da pesquisa científica.
 
-## Instalação do XAMPP
-
-O XAMPP é um pacote que inclui Apache, MySQL, PHP e Perl. Ele fornece um ambiente de desenvolvimento local para facilitar a criação e teste de aplicações web.
-
-### Passo 1: Download do XAMPP
-
-Faça o download do XAMPP no site oficial: [https://www.apachefriends.org/index.html](https://www.apachefriends.org/index.html)
-
-### Passo 2: Instalação
-
-Siga as instruções específicas para o seu sistema operacional:
-
-- **Windows:**
-  - Execute o instalador baixado.
-  - Siga as instruções na tela para concluir a instalação.
-
-- **Linux:**
-  - Abra um terminal.
-  - Navegue até o diretório onde o arquivo foi baixado.
-  - Dê permissões de execução ao arquivo: `chmod +x nome-do-arquivo.run`
-  - Execute o instalador: `./nome-do-arquivo.run`
-
-- **macOS:**
-  - Abra o arquivo .dmg baixado.
-  - Arraste o ícone do XAMPP para a pasta "Applications".
-
-### Passo 3: Iniciar o XAMPP
-
-- **Windows:**
-  - Inicie o XAMPP a partir do menu Iniciar.
-  - Clique em "Start" para os módulos Apache e MySQL.
-
-- **Linux:**
-  - Inicie o XAMPP a partir do terminal: `sudo /opt/lampp/lampp start`
-
-- **macOS:**
-  - Abra o XAMPP na pasta "Applications".
-  - Clique em "Start" para os módulos Apache e MySQL.
-
-## Verificando a Versão do PHP
-
-### Passo 1: Acesse o PHP no Navegador
-
-  1. Abra o navegador e digite o seguinte URL:
-
-      ```bash
-      http://localhost/dashboard/
-
-### Passo 2: Verifique a Versão do PHP
-
-No painel do XAMPP, clique em "phpMyAdmin" ou "Status" e procure pela seção que exibe a versão do PHP.
-
-Pronto! Agora você instalou o XAMPP e verificou a versão do PHP em seu ambiente de desenvolvimento local.
-
 ## Instalação do Open Journal Systems (OJS)
 
 ### Passo 1: Download do OJS
@@ -119,7 +65,7 @@ Descompacte o arquivo baixado em um diretório de sua escolha.
 - Acesse o OJS no navegador, por exemplo: `http://localhost/caminho-para-ojs/`.
 - Siga as instruções na tela para concluir a instalação.
 
-Pronto! Agora você instalou o XAMPP, configurou o banco de dados e instalou o Open Journal Systems em seu ambiente de desenvolvimento local.
+Pronto! Agora você configurou o banco de dados e instalou o Open Journal Systems em seu ambiente de desenvolvimento local.
 
 # Adicionando um Plugin Genérico ao Open Journal Systems (OJS)
 
@@ -151,46 +97,169 @@ Pronto! Agora você instalou o XAMPP, configurou o banco de dados e instalou o O
 
 Lembre-se de seguir a documentação específica do plugin, se disponível, para garantir que você atenda a todos os requisitos e configurações necessárias. Certifique-se também de fazer backup do seu sistema antes de fazer alterações significativas.
 
-# Atualização do Open Journal Systems (OJS)
+# Processo de Dockerização OJS - Periódicos IFPB
 
-Antes de começar, é altamente recomendável fazer backup do seu sistema, incluindo a pasta `files` e um dump do banco de dados.
+## Configuração dos contâiners
 
-## 1. Backup do Sistema
+### Dockerfiles 
 
-- **Pasta 'files':**
-  - Faça uma cópia de backup da pasta `files` do seu diretório OJS. Esta pasta contém os uploads de arquivos, como imagens e documentos.
+O processo de criação dos containêres Docker se inicia a partir da criação de uma imagem Docker, contida nos arquivos `Dockerfile`. Neste caso, utilizamos dois arquivos deste tipo, um para o contâiner Apache que irá rodar o OJS e outro para o banco de dados MySQL.
 
-- **Backup do Banco de Dados:**
-  - Execute um dump do banco de dados atual usando ferramentas como `mysqldump` ou qualquer outra ferramenta que você prefira.
+**Dockerfile para MySQL**
+```Dockerfile
+FROM mysql:latest
 
-## 2. Download da Nova Versão do OJS
+# configurações para character set
+COPY my-custom.cnf /etc/mysql/conf.d/my-custom.cnf
 
-- Acesse o site oficial do OJS para baixar a versão mais recente: [https://pkp.sfu.ca/ojs/ojs_download/](https://pkp.sfu.ca/ojs/ojs_download/)
+RUN chown -R mysql:mysql /var/lib/mysql
 
-## 3. Descompacte o Novo OJS
+EXPOSE 3306
 
-- Descompacte o arquivo baixado em um diretório temporário.
+# executar configurações
+CMD ["mysqld"]
+```
 
-## 4. Substitua a Pasta 'files'
+**Dockerfile para OJS**
+```Dockerfile
+FROM php:7.4-apache
 
-- Copie a pasta `files` do seu backup para o diretório do novo OJS. Isso garantirá que todos os uploads e arquivos personalizados sejam preservados.
+RUN apt-get update && apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libpng-dev \
+    libxml2-dev \
+    zlib1g-dev \
+    libicu-dev \
+    libzip-dev \
+    libonig-dev \
+    unzip \
+    tar \
+    wget \
+    nano \
+    jq \
+    net-tools \
+    gettext
+    
+RUN docker-php-ext-install -j$(nproc) iconv pdo pdo_mysql mbstring zip intl gettext
 
-## 5. Migração do Banco de Dados
+# configurações Apache
+COPY apache-conf.conf /etc/apache2/sites-available/000-default.conf
 
-- Execute o novo OJS no navegador, o que geralmente inicia o processo de migração do banco de dados.
+# reiniciar o Apache assim que o contâiner for iniciado
+CMD ["apache2ctl", "-D", "FOREGROUND"]
 
-## 6. Configuração do Banco de Dados
+WORKDIR /var/www/ojsnovo
 
-- Durante o processo de instalação/migração, você será solicitado a fornecer informações do banco de dados. Use as mesmas informações que você usou na versão anterior do OJS.
+# configurar permissão do Apache para o Apache
+RUN chown -R www-data:www-data /var/www/ojsnovo
+```
 
-## 7. Verificação e Configuração Adicional
+### Docker Compose
 
-- Verifique se tudo está funcionando corretamente no OJS após a atualização.
-- Consulte a documentação da versão específica do OJS para quaisquer configurações adicionais ou ajustes necessários.
+Após isso, iremos utilizar o comando `docker-compose` para criar e executar nossa imagem Docker. Primeiro, vamos entender a composição do diretório.
 
-## 8. Conclusão
+```bash
+root@seerojs:/var/www ls -1a
+.
+..
+apache-conf.conf
+bd.sql
+docker-compose.yml
+Dockerfile.mysql
+Dockerfile.ojs
+.env
+fullchain1.pem
+html
+my-custom.cnf
+mysql-data
+ojsnovo
+privkey1.pem
+```
 
-Parabéns, você concluiu a atualização do OJS! Certifique-se de revisar qualquer documentação de versão fornecida pela equipe do OJS para garantir que todas as novas funcionalidades sejam aproveitadas.
+Os arquivos `apache-conf.conf` e `my-custom.cnf` serão copiados para dentro dos contâiners através dos seus respectivos Dockerfiles. Já o `.env` define as variáveis de ambiente para o contâiner do banco de dados (isso será linkado através do docker-compose). O diretório `ojs` contém os arquivos do OJS e a pasta `mysql-data` irá persistir os dados do banco. 
+
+O arquivo `docker-compose.yml` está configurado da seguinte maneira:
+```yml
+version: '3'
+services:
+  ojs:
+    build:
+      context: .
+      dockerfile: Dockerfile.ojs
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+      - "443:443" # HTTPS
+    volumes:
+      - ./ojsnovo/:/var/www/ojsnovo # a pasta do OJS será dockerizada
+    depends_on:
+      - mysql
+    networks:
+      - periodicos
+
+  mysql:
+    build:
+      context: .
+      dockerfile: Dockerfile.mysql
+    env_file:
+      - .env
+    networks:
+      - periodicos
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+volumes:
+  mysql-data:
+
+networks:
+  periodicos:
+    driver: bridge
+```
+
+### Configurações adicionais
+
+É necessário estar atento ao arquivo `.env`, que define as variáveis de ambiente para os contâineres. No caso, será preciso configurar a conexão do banco de dados no arquivo `config.inc.php` do OJS para as do contâiner, que segue:
+
+```ini
+MYSQL_ROOT_PASSWORD=root
+MYSQL_DATABASE=ojs248ult
+MYSQL_USER=admin
+MYSQL_PASSWORD=admin
+```
+
+No `config.inc.php`:
+```inc
+;;;;;;;;;;;;;;;;;;;;;
+; Database Settings ;
+;;;;;;;;;;;;;;;;;;;;;
+
+[database]
+
+driver = mysql
+host = mysql
+username = admin
+password = admin
+name = ojs248ult
+```
+
+
+### Executando os contâineres
+
+Utilizaremos o comando `docker-compose up --build -d` para construir e executar nossos containêres, e `docker-compose up -d` para rodá-los outra vez. Para desativar os contâineres, `docker-compose stop`; e para removê-los, `docker-compose down`.
+
+### MySQL Dump
+
+Ao executar o containêr do banco de dados pela primeira vez, precisamos rodar o script de dump dos nossos dados. 
+
+1. Copiar o arquivo do dump (`bd.sql`) para dentro da pasta `mysql-data`
+2. Acessar o terminal do containêr: `docker exec -it ifpb_mysql_1 /bin/bash`
+3. Acessar a pasta do MySQL: `cd var/lib/mysql`
+4. Rodar o script de dump: `mysql -uadmin -padmin ojs248ult < bd.sql`
 
 Aqui estão alguns links úteis para a documentação do OJS:
 
