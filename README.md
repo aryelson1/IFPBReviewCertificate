@@ -2,7 +2,7 @@
 
 O **Plugin Genérico de Certificado para Revisores de Artigos** é uma ferramenta inovadora projetada para simplificar e aprimorar o reconhecimento dos revisores que contribuem significativamente para o processo de revisão de artigos científicos. Este plugin integra-se perfeitamente ao **Open Journal Systems (OJS)**, proporcionando aos autores a capacidade de baixar um certificado em formato PDF, validando e destacando seu papel como revisor de um artigo específico.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ## Recursos Principais:
 
