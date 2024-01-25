@@ -261,6 +261,38 @@ Ao executar o containêr do banco de dados pela primeira vez, precisamos rodar o
 3. Acessar a pasta do MySQL: `cd var/lib/mysql`
 4. Rodar o script de dump: `mysql -uadmin -padmin ojs248ult < bd.sql`
 
+# Upgrade do OJS 2.4.8 - Charsets
+
+Como o banco de produção está com suas tabelas em codificação `latin1`, isso gera alguns problemas para o nosso banco de dados, que está em `utf8`. Para isso, vamos rodar um script de correção das tabelas:
+
+`/home/projetoseer/correcao_charset.sh`
+```bash
+#!/bin/bash
+
+echo "Fixing existing encoding errors..."
+mysql --defaults-file=/etc/mysql/my.cnf -v -Nse "SELECT CONCAT(table_name, '.', column_name) FROM information_schema.columns WHERE table_schema = 'ojs' AND character_set_name IS NOT NULL ORDER BY table_name, column_name" ojs \
+   | while IFS='.' read -ra table_and_column; do if [[ "${table_and_column[0]}${table_and_column[1]}" =~ ^[a-zA-Z0-9_]+$ ]]; then mysql -v -e "UPDATE ${table_and_column[0]} SET ${table_and_column[1]} = CONVERT(CONVERT(CONVERT(${table_and_column[1]} USING binary) USING utf8) USING latin1)" -uroot -ppkpojs123 ojs; fi done
+
+echo "Changing charset and collation to UTF-8..."
+mysql --defaults-file=/etc/mysql/my.cnf -v -e "ALTER DATABASE ojs CHARACTER SET utf8 COLLATE utf8_unicode_ci;" -uroot -ppkpojs123 ojs
+
+mysql --defaults-file=/etc/mysql/my.cnf -v -Nse 'SHOW TABLES' ojs \
+   | while read table; do mysql -v -e "ALTER TABLE $table CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;" -uroot -ppkpojs123 ojs; done
+```
+
+Este script já estava presente na pasta `home` da VM, porém adicionamos a flag `defaults-file` apontando para o arquivo de configuração `/etc/mysql/my.cnf`, que por sua vez possui o usuário `root` e sua senha.
+
+O arquivo `my.cnf` também foi alterado para receber o login do usuário `root`:
+
+`/etc/mysql/my.cnf`
+```ini
+[client]
+user=root
+password=pkpojs123
+```
+
+Feito isso, o nosso banco irá funcionar com codificação UTF8.
+
 Aqui estão alguns links úteis para a documentação do OJS:
 
 - [Documentação Geral do OJS](https://docs.pkp.sfu.ca/)
