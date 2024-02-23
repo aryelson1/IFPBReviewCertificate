@@ -239,7 +239,7 @@ Explore os seguintes tutoriais para obter informações detalhadas sobre a utili
 
    - [Tutorial Redifinição dos Papéis](https://drive.google.com/file/d/1u0kWmCQbtAOiJ6VfvDjbevLLFAKgi3R6/view?usp=sharing)
 
-   - [Tutorial Edição Componentes do Artigo](https://drive.google.com/file/d/1hZPx9z6Snt6QjTvsi4XBs0bvSrPJYgn2/view?usp=sharing)
+   - [Tutorial Edição Componentes do Artigo](https://drive.google.com/file/d/1AAs39OtWFimSy3RQpwghHqHvzoC6UoG6/view?usp=sharing)
 
 
 ## Contribuições
