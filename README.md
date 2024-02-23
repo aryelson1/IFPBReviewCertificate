@@ -251,8 +251,7 @@ Se você encontrar problemas durante a atualização ou quiser contribuir com me
 
 ## Licença
 
-# Gerador de Certificado para Open Journal Systems
-# Versão 1.0
+##### Gerador de Certificado para Open Journal Systems Versão 1.0
 
 Este trabalho é software livre; você pode redistribuí-lo e/ou modificá-lo nos termos da Licença Pública Geral GNU publicada pela Free Software Foundation, na versão 3 da Licença, ou (a seu critério) qualquer versão posterior.
 
