@@ -41,7 +41,7 @@ Este **Plugin Genérico de Certificado para Revisores de Artigos** é uma adiç�
 
 ### Passo 1: Download do OJS
 
-Faça o download da última versão do OJS no site oficial: [https://pkp.sfu.ca/ojs/ojs_download/](https://pkp.sfu.ca/ojs/ojs_download/)
+Faça o download da versão 2.x ~ 3.x do OJS no site oficial: [https://pkp.sfu.ca/ojs/ojs_download/](https://pkp.sfu.ca/ojs/ojs_download/)
 
 ### Passo 2: Extração dos Arquivos
 
@@ -95,203 +95,129 @@ Pronto! Agora você configurou o banco de dados e instalou o Open Journal System
 8. **Verifique a Funcionalidade:**
    - Após a ativação e configuração do plugin, verifique se a funcionalidade desejada está disponível no OJS.
 
-Lembre-se de seguir a documentação específica do plugin, se disponível, para garantir que você atenda a todos os requisitos e configurações necessárias. Certifique-se também de fazer backup do seu sistema antes de fazer alterações significativas.
+# Atualização do OJS 2.x => 3.x
 
-# Processo de Dockerização OJS - Periódicos IFPB
+## Dump do banco de dados
 
-## Configuração dos contâiners
+O dump do BD da versão atual (2.4.5) precisa ser feito com o seguinte comando
+`mysqldump -u[usuário] -p[senha] --default-character-set=utf8 --skip-set-charset [banco de dados] > [arquivo de dump].sql`
 
-### Dockerfiles 
+## OJS 2.4.8-4
 
-O processo de criação dos containêres Docker se inicia a partir da criação de uma imagem Docker, contida nos arquivos `Dockerfile`. Neste caso, utilizamos dois arquivos deste tipo, um para o contâiner Apache que irá rodar o OJS e outro para o banco de dados MySQL.
+A versão atual do banco está em `2.4.5`. Vamos atualizá-lo para `2.4.8-4` (versão que já permite atualização para 3.x).
 
-**Dockerfile para MySQL**
-```Dockerfile
-FROM mysql:latest
+Antes de tudo, copie a pasta `public` para o mesmo diretório onde ficará a pasta do OJS 2.4.8-4. Serão construídos dois contâineres, como o comando `docker-compose up --build -d`, para esta atualização: um para o PHP5.6 e outro para o MySQL 5.7.44.
 
-# configurações para character set
-COPY my-custom.cnf /etc/mysql/conf.d/my-custom.cnf
+Antes da build, adicione as pastas `files\` e `ojs\` no arquivo `.dockerignore`. Isso reduzirá significativamente o tempo desta etapa.
 
-RUN chown -R mysql:mysql /var/lib/mysql
+Após a construção dos contâneires, execute os seguintes passos:
 
-EXPOSE 3306
+1. Copie o dump do banco de dados para a pasta `mysql-data`.
+2. Copie o script de correção do banco de dados - `correcao_charset.sh` - para a pasta `mysql-data`.
+    + O script sofreu uma pequena alteração, adicionando a flag `--defaults-file` para autenticação quando este for executado.
+3. Execute o comando `docker cp my.cnf ojs2_mysql_1:/etc/mysql/conf.d/my-custom.cnf`. Isso irá adicionar as credenciais `user=admin` e `password=admin` no arquivo `my-custom.cnf`.
+    + Se isso for feito na etapa de build, há uma chance de gerar um problema de autenticação na criação do banco de dados, no script de entrypoint.
+4. Faça o dump do banco de dados - `mysql -uadmin -padmin ojs < [arquivo de dump].sql` - e em seguida, rode o script de correção.
 
-# executar configurações
-CMD ["mysqld"]
+Após estas etapas, o banco de dados estará pronto para a atualização.
+
+## Atualização
+
+Nesta etapa, já podemos remover as pastas `files` e `ojs` do `.dockerignore`. Reinicie também os contâineres com `docker-compose restart` para que os diretórios sejam montados pelo Docker.
+
+Coloque as seguintes configurações no arquivo `config.inc.php`:
 ```
-
-**Dockerfile para OJS**
-```Dockerfile
-FROM php:7.4-apache
-
-RUN apt-get update && apt-get install -y \
-    libfreetype6-dev \
-    libjpeg62-turbo-dev \
-    libmcrypt-dev \
-    libpng-dev \
-    libxml2-dev \
-    zlib1g-dev \
-    libicu-dev \
-    libzip-dev \
-    libonig-dev \
-    unzip \
-    tar \
-    wget \
-    nano \
-    jq \
-    net-tools \
-    gettext
-    
-RUN docker-php-ext-install -j$(nproc) iconv pdo pdo_mysql mbstring zip intl gettext
-
-# configurações Apache
-COPY apache-conf.conf /etc/apache2/sites-available/000-default.conf
-
-# reiniciar o Apache assim que o contâiner for iniciado
-CMD ["apache2ctl", "-D", "FOREGROUND"]
-
-WORKDIR /var/www/ojsnovo
-
-# configurar permissão do Apache para o Apache
-RUN chown -R www-data:www-data /var/www/ojsnovo
-```
-
-### Docker Compose
-
-Após isso, iremos utilizar o comando `docker-compose` para criar e executar nossa imagem Docker. Primeiro, vamos entender a composição do diretório.
-
-```bash
-root@seerojs:/var/www ls -1a
-.
-..
-apache-conf.conf
-bd.sql
-docker-compose.yml
-Dockerfile.mysql
-Dockerfile.ojs
-.env
-fullchain1.pem
-html
-my-custom.cnf
-mysql-data
-ojsnovo
-privkey1.pem
-```
-
-Os arquivos `apache-conf.conf` e `my-custom.cnf` serão copiados para dentro dos contâiners através dos seus respectivos Dockerfiles. Já o `.env` define as variáveis de ambiente para o contâiner do banco de dados (isso será linkado através do docker-compose). O diretório `ojs` contém os arquivos do OJS e a pasta `mysql-data` irá persistir os dados do banco. 
-
-O arquivo `docker-compose.yml` está configurado da seguinte maneira:
-```yml
-version: '3'
-services:
-  ojs:
-    build:
-      context: .
-      dockerfile: Dockerfile.ojs
-    env_file:
-      - .env
-    ports:
-      - "8080:8080"
-      - "443:443" # HTTPS
-    volumes:
-      - ./ojsnovo/:/var/www/ojsnovo # a pasta do OJS será dockerizada
-    depends_on:
-      - mysql
-    networks:
-      - periodicos
-
-  mysql:
-    build:
-      context: .
-      dockerfile: Dockerfile.mysql
-    env_file:
-      - .env
-    networks:
-      - periodicos
-    volumes:
-      - ./mysql-data:/var/lib/mysql
-    ports:
-      - "3306:3306"
-
-volumes:
-  mysql-data:
-
-networks:
-  periodicos:
-    driver: bridge
-```
-
-### Configurações adicionais
-
-É necessário estar atento ao arquivo `.env`, que define as variáveis de ambiente para os contâineres. No caso, será preciso configurar a conexão do banco de dados no arquivo `config.inc.php` do OJS para as do contâiner, que segue:
-
-```ini
-MYSQL_ROOT_PASSWORD=root
-MYSQL_DATABASE=ojs248ult
-MYSQL_USER=admin
-MYSQL_PASSWORD=admin
-```
-
-No `config.inc.php`:
-```inc
-;;;;;;;;;;;;;;;;;;;;;
-; Database Settings ;
-;;;;;;;;;;;;;;;;;;;;;
+installed = Off
 
 [database]
+host =mysql
+user = admin
+password = admin
+database = ojs
 
-driver = mysql
+locale = pt_BR
+
+client_charset = utf-8
+
+database_charset = utf8
+
+connection_charset = utf8
+
+files_dir = /home/files/
+```
+
+O diretório da pasta `files` será montado, pelo contâiner, na pasta  `home`. Certifique-se que as permissões das pastas `/home/files` e `/var/www/html` (pasta do OJS) estão configuradas para `www-data:www-data` (usuário do Apache) com o comando `ls -l`. Se necessário, modifique as permissões com `chown -R www-data:www-data [pasta]` e `chmod -R 755 [pasta]`.
+
+Após isso, execute este comando para checar a conexão do banco.
+
+```bash
+php -d memory_limit=2048M -d max_execution_time=300 -d post_max_size=8M -d upload_max_filesize=2000M -d max_input_time=600 tools/upgrade.php check
+```
+
+Por fim, execute a atualização.
+
+```bash
+nohup php -d memory_limit=2048M -d max_execution_time=300 -d post_max_size=8M -d upload_max_filesize=2000M -d max_input_time=600 tools/upgrade.php upgrade > upgrade_248.log & tail -f upgrade_248.log
+```
+
+Tempo estimado (dump + correção do charset + cópia da pasta `files` + atualização): <30min
+
+## OJS 3.2.1-5
+
+O primeiro passo será coletar a pasta `public`. Feito o dump do banco de dados, usando o mesmo comando dado acima, já podemos desmontar os contâineres com o comando `docker-compose down -v`.
+
+Reinsira o diretório `files` e pasta `ojs` no `.dockerignore`, antes de montar os novos contâineres. Confira também no container para o MySQL se as variáveis de `character_set` estão em `utf8mb3`. Se não, use o comando `SET NAMES utf8mb3`.
+
+Como esta etapa é significativamente mais longa, recomendamos aumentar o tempo de `timeout` da VM no arquivo `/etc/ssh/sshd_config`:
+```
+ClientAliveInterval 7200
+ClientAliveCountMax 3
+```
+
+Recomendamos também executar o dump através do comando `SOURCE /var/lib/mysql/[nome do arquivo].sql` ao invés de `mysql ... ojs < [nome do arquivo].sql`, ao logar no banco de dados usando `mysql -u[usuário] -p[senha] [banco de dados]`
+
+- Trocar no `config.inc.php`:
+```ini
+
+locale = pt-BR 
+
+collation = utf8mb3_unicode_ci
+
+connection_charset = utf8mb3
+
+[database]
+driver = mysqli
 host = mysql
 username = admin
 password = admin
-name = ojs248ult
+name = ojs
+
+files = /home/files/
 ```
 
+Removidas as pastas principais no arquivo `.dockerignore`, confira as permissões da pasta do OJS e da pasta `files` dentro do banco.
 
-### Executando os contâineres
+Após isso, execute este comando para checar a conexão do banco.
 
-Utilizaremos o comando `docker-compose up --build -d` para construir e executar nossos containêres, e `docker-compose up -d` para rodá-los outra vez. Para desativar os contâineres, `docker-compose stop`; e para removê-los, `docker-compose down`.
-
-### MySQL Dump
-
-Ao executar o containêr do banco de dados pela primeira vez, precisamos rodar o script de dump dos nossos dados. 
-
-1. Copiar o arquivo do dump (`bd.sql`) para dentro da pasta `mysql-data`
-2. Acessar o terminal do containêr: `docker exec -it ifpb_mysql_1 /bin/bash`
-3. Acessar a pasta do MySQL: `cd var/lib/mysql`
-4. Rodar o script de dump: `mysql -uadmin -padmin ojs248ult < bd.sql`
-
-# Upgrade do OJS 2.4.8 - Charsets
-
-Como o banco de produção está com suas tabelas em codificação `latin1`, isso gera alguns problemas para o nosso banco de dados, que está em `utf8`. Para isso, vamos rodar um script de correção das tabelas:
-
-`/home/projetoseer/correcao_charset.sh`
 ```bash
-#!/bin/bash
-
-echo "Fixing existing encoding errors..."
-mysql --defaults-file=/etc/mysql/my.cnf -v -Nse "SELECT CONCAT(table_name, '.', column_name) FROM information_schema.columns WHERE table_schema = 'ojs' AND character_set_name IS NOT NULL ORDER BY table_name, column_name" ojs \
-   | while IFS='.' read -ra table_and_column; do if [[ "${table_and_column[0]}${table_and_column[1]}" =~ ^[a-zA-Z0-9_]+$ ]]; then mysql -v -e "UPDATE ${table_and_column[0]} SET ${table_and_column[1]} = CONVERT(CONVERT(CONVERT(${table_and_column[1]} USING binary) USING utf8) USING latin1)" -uroot -ppkpojs123 ojs; fi done
-
-echo "Changing charset and collation to UTF-8..."
-mysql --defaults-file=/etc/mysql/my.cnf -v -e "ALTER DATABASE ojs CHARACTER SET utf8 COLLATE utf8_unicode_ci;" -uroot -ppkpojs123 ojs
-
-mysql --defaults-file=/etc/mysql/my.cnf -v -Nse 'SHOW TABLES' ojs \
-   | while read table; do mysql -v -e "ALTER TABLE $table CONVERT TO CHARACTER SET utf8 COLLATE utf8_unicode_ci;" -uroot -ppkpojs123 ojs; done
+php -d memory_limit=2048M -d max_execution_time=300 -d post_max_size=8M -d upload_max_filesize=2000M -d max_input_time=600 tools/upgrade.php check
 ```
 
-Este script já estava presente na pasta `home` da VM, porém adicionamos a flag `defaults-file` apontando para o arquivo de configuração `/etc/mysql/my.cnf`, que por sua vez possui o usuário `root` e sua senha.
+Por fim, execute a atualização.
 
-O arquivo `my.cnf` também foi alterado para receber o login do usuário `root`:
-
-`/etc/mysql/my.cnf`
-```ini
-[client]
-user=root
-password=pkpojs123
+```bash
+nohup php -d memory_limit=2048M -d max_execution_time=300 -d post_max_size=8M -d upload_max_filesize=2000M -d max_input_time=600 tools/upgrade.php upgrade > upgrade_321.log & tail -f upgrade_321.log
 ```
 
-Feito isso, o nosso banco irá funcionar com codificação UTF8.
+Tempo estimado: 1h
+
+Obs.: Pode ocorrer um travamento em `setFileName`, mas o processo segue, e é concluído normalmente.
+
+## OJS 3.3.0-15
+
+O processo desta etapa será idêntico à anterior.
+
+Tempo estimado: < 20min
 
 Aqui estão alguns links úteis para a documentação do OJS:
 
