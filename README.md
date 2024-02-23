@@ -219,6 +219,8 @@ O processo desta etapa será idêntico à anterior.
 
 Tempo estimado: < 20min
 
+## Documentação
+
 Aqui estão alguns links úteis para a documentação do OJS:
 
 - [Documentação Geral do OJS](https://docs.pkp.sfu.ca/)
@@ -226,6 +228,16 @@ Aqui estão alguns links úteis para a documentação do OJS:
 - [Guia de Atualização do OJS](https://docs.pkp.sfu.ca/learning-ojs/3.3/pt/about-ojs#install-and-upgrade)
 
 - [Fórum da Comunidade OJS](https://forum.pkp.sfu.ca/)
+
+## Tutoriais
+
+Explore os seguintes tutoriais para obter informações detalhadas sobre a utilização do sistema:
+
+   - [Tutorial Adicionar Assinatura ](https://drive.google.com/file/d/1UBK-XUUzCNE1DXd3Mo257GraEkMAVObn/view?usp=sharing)
+
+   - [Tutorial Resetando Informações do E-Mail ](https://drive.google.com/file/d/1j8scB3GBmKQIzVCc5uZMACEVwu7dwevw/view?usp=sharing)
+
+   - [Tutorial Redifinição dos Papéis](https://drive.google.com/file/d/1u0kWmCQbtAOiJ6VfvDjbevLLFAKgi3R6/view?usp=sharing)
 
 ## Contribuições
 
