@@ -239,6 +239,9 @@ Explore os seguintes tutoriais para obter informações detalhadas sobre a utili
 
    - [Tutorial Redifinição dos Papéis](https://drive.google.com/file/d/1u0kWmCQbtAOiJ6VfvDjbevLLFAKgi3R6/view?usp=sharing)
 
+   - [Tutorial Edição Componentes do Artigo](https://drive.google.com/file/d/1hZPx9z6Snt6QjTvsi4XBs0bvSrPJYgn2/view?usp=sharing)
+
+
 ## Contribuições
 
 Se você encontrar problemas durante a atualização ou quiser contribuir com melhorias para este guia, sinta-se à vontade para abrir uma "issue" ou enviar um "pull request".
